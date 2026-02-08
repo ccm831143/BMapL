@@ -1,6 +1,4 @@
-function [task, bayes] = BDA_new(task, bayes, gen)
-    % BDA: Bayesian Domain Adaptation with Population-Sum Normalization
-    % Corrected: Weights are strictly normalized by population SUM, ensuring w < 1.
+function [task, bayes] = BDA(task, bayes, gen)
     
     %% Common Parameters
     gen_tran = 6;           
@@ -75,11 +73,9 @@ function [task, bayes] = BDA_new(task, bayes, gen)
                     valid_M = prev_M(valid_idx, :);
                     scaling_factor = length(scores); 
                     valid_scores = scores(valid_idx);
-                    % valid_scores = scores(valid_idx) * scaling_factor;
                     
                     % Update GMM with these small probability weights
-                    % The sum(valid_scores) will act as N_eff.
-                    [updated_gmm, task_bayes, mu_new] = bayesian_gmm_update_new(...
+                    [updated_gmm, task_bayes, mu_new] = bayesian_gmm_update(...
                         task_bayes, valid_M, prior_available, valid_scores); 
                     
                     task_bayes.mu{gen} = mu_new;
@@ -113,7 +109,6 @@ function [task, bayes] = BDA_new(task, bayes, gen)
 
         %% Phase 2: Generate & Inject (Transfer) -------------------
         if gen >= gen_tran
-            % (Phase 2 代码逻辑保持不变)
             source_fit = task(n_source).fitnesses{gen};
             source_sol = task(n_source).solutions{gen};
             
@@ -132,6 +127,7 @@ function [task, bayes] = BDA_new(task, bayes, gen)
                 for i = 1:size(elite_sol, 1)
                     for j = 1:num_per_sol
                         if (gen == gen_tran) || (rand() < task_bayes.replace_ratio) || isempty(task_bayes.gmm)
+                            % get the mapping parameter derived from established MapL methods
                              M = adaptation_parameter(...
                                 task(n_target).solutions, task(n_target).fitnesses, ...
                                 task(n_source).solutions, task(n_source).fitnesses, ...
