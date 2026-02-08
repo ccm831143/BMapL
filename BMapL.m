@@ -1,4 +1,4 @@
-function [task, bayes] = BDA(task, bayes, gen)
+function [task, bayes] = BMapL(task, bayes, gen)
     
     %% Common Parameters
     gen_tran = 6;           
@@ -168,3 +168,4 @@ function [task, bayes] = BDA(task, bayes, gen)
         bayes.(['task' num2str(n_target)]) = task_bayes;
     end
 end
+
